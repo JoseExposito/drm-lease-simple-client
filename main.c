@@ -7,6 +7,7 @@
 #include <threads.h>
 #include <unistd.h>
 #include <wayland-client.h>
+#include <xf86drm.h>
 #include "drm-lease-v1-client-protocol.h"
 
 #define TARGET_CONNECTOR_DESC "DEL DELL U2422H"
@@ -85,10 +86,13 @@ static const struct wp_drm_lease_connector_v1_listener wp_drm_lease_connector_v1
 static void wp_drm_lease_device_v1_listener_handle_drm_fd(void *data,
         struct wp_drm_lease_device_v1 *wp_drm_lease_device_v1, int32_t fd)
 {
-    printf("wp_drm_lease_device_v1_listener_handle_drm_fd\n");
+    printf("wp_drm_lease_device_v1_listener_handle_drm_fd: %d\n", fd);
 
     struct state *state = data;
     state->drm_lease_device_fd = fd;
+
+    printf("\tDevice path: %s\n", drmGetDeviceNameFromFd2(fd));
+    printf("\tDevice is master? %s\n", drmIsMaster(fd) ? "Yes" : "No");
 }
 
 static void wp_drm_lease_device_v1_listener_handle_connector(void *data,

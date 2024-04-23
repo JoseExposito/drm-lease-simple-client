@@ -9,6 +9,7 @@ project('drm-lease-simple-client', 'c',
 )
 
 dep_wl_client = dependency('wayland-client')
+dep_libdrm = dependency('libdrm')
 
 wl_mod = import('unstable-wayland')
 wl_drm_lease_xml = wl_mod.find_protocol('drm-lease', state: 'staging', version: 1)
@@ -16,5 +17,5 @@ wl_drm_lease = wl_mod.scan_xml(wl_drm_lease_xml)
 
 executable('drm-lease-simple-client',
            'main.c', wl_drm_lease,
-           dependencies: [dep_wl_client],
+           dependencies: [dep_wl_client, dep_libdrm],
 )
