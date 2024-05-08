@@ -68,9 +68,16 @@ static void wp_drm_lease_connector_v1_listener_handle_done(void *data,
 static void wp_drm_lease_connector_v1_listener_handle_withdrawn(void *data,
 			  struct wp_drm_lease_connector_v1 *wp_drm_lease_connector_v1)
 {
-    printf("wp_drm_lease_connector_v1_listener_handle_withdrawn\n");
+    printf("wp_drm_lease_connector_v1_listener_handle_withdrawn: Sending destroy\n");
 
-    struct state *state = data;
+    wp_drm_lease_connector_v1_destroy(wp_drm_lease_connector_v1);
+
+    // TODO: Test this part:
+    // Sent to indicate that the compositor will no longer honor requests for
+    // DRM leases which include this connector.
+    // *** The client may still issue a lease request including this connector,
+    // but the compositor will send wp_drm_lease_v1.finished without issuing a
+    // lease fd. ***
 }
 
 static const struct wp_drm_lease_connector_v1_listener wp_drm_lease_connector_v1_listener = {
