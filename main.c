@@ -1,6 +1,8 @@
 #include <errno.h>
 #include <fcntl.h>
+#include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/mman.h>
 #include <time.h>
@@ -21,6 +23,41 @@ struct state {
 
     // For simplicity, handle only the connector with description TARGET_CONNECTOR_DESC
     struct wp_drm_lease_connector_v1 *drm_lease_connector;
+};
+
+static bool ask_question(const char *question)
+{
+    char answer[100];
+
+    printf("%s [y/n] ", question);
+    fflush(stdout);
+    fgets(answer, sizeof(answer), stdin);
+
+    return (strncmp(answer, "y", 1) == 0);
+}
+
+// ----------------------------- drm_lease: lease ------------------------------
+
+static void wp_drm_lease_v1_listener_handle_lease_fd(void *data,
+        struct wp_drm_lease_v1 *wp_drm_lease_v1, int32_t leased_fd)
+{
+    printf("wp_drm_lease_v1_listener_handle_lease_fd: %d\n", leased_fd);
+
+    if (ask_question("Would you like to finish the lease?")) {
+        printf("Sending wp_drm_lease_v1_destroy\n");
+        wp_drm_lease_v1_destroy(wp_drm_lease_v1);
+    }
+}
+
+static void wp_drm_lease_v1_listener_handle_finished(void *data,
+        struct wp_drm_lease_v1 *wp_drm_lease_v1)
+{
+    printf("wp_drm_lease_v1_listener_handle_finished\n");
+}
+
+static const struct wp_drm_lease_v1_listener wp_drm_lease_v1_listener = {
+    .lease_fd = wp_drm_lease_v1_listener_handle_lease_fd,
+    .finished = wp_drm_lease_v1_listener_handle_finished,
 };
 
 // --------------------------- drm_lease: connector ----------------------------
@@ -118,6 +155,22 @@ static void wp_drm_lease_device_v1_listener_handle_done(void *data,
 {
     printf("wp_drm_lease_device_v1_listener_handle_done\n");
     struct state *state = data;
+
+    if (ask_question("Would you like to send a lease request?")) {
+        struct wp_drm_lease_request_v1 *request;
+        struct wp_drm_lease_v1 *lease;
+
+        request = wp_drm_lease_device_v1_create_lease_request(state->drm_lease_device);
+        
+        // Comment for WP_DRM_LEASE_REQUEST_V1_ERROR_EMPTY_LEASE
+        wp_drm_lease_request_v1_request_connector(request, state->drm_lease_connector);
+        
+        // Uncomment for WP_DRM_LEASE_REQUEST_V1_ERROR_DUPLICATE_CONNECTOR
+        // wp_drm_lease_request_v1_request_connector(request, state->drm_lease_connector);
+        
+        lease = wp_drm_lease_request_v1_submit(request);
+        wp_drm_lease_v1_add_listener(lease, &wp_drm_lease_v1_listener, state);
+    }
 }
 
 static void wp_drm_lease_device_v1_listener_handle_released(void *data,
