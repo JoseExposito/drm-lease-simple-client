@@ -38,7 +38,7 @@ static bool ask_question(const char *question)
 
 // ----------------------------- drm_lease: lease ------------------------------
 
-static void wp_drm_lease_v1_listener_handle_lease_fd(void *data,
+static void wp_drm_lease_v1_listener_handle_lease_fd(void */*data*/,
         struct wp_drm_lease_v1 *wp_drm_lease_v1, int32_t leased_fd)
 {
     printf("wp_drm_lease_v1_listener_handle_lease_fd: %d\n", leased_fd);
@@ -49,8 +49,8 @@ static void wp_drm_lease_v1_listener_handle_lease_fd(void *data,
     }
 }
 
-static void wp_drm_lease_v1_listener_handle_finished(void *data,
-        struct wp_drm_lease_v1 *wp_drm_lease_v1)
+static void wp_drm_lease_v1_listener_handle_finished(void */*data*/,
+        struct wp_drm_lease_v1 */*wp_drm_lease_v1*/)
 {
     printf("wp_drm_lease_v1_listener_handle_finished\n");
 }
@@ -62,21 +62,18 @@ static const struct wp_drm_lease_v1_listener wp_drm_lease_v1_listener = {
 
 // --------------------------- drm_lease: connector ----------------------------
 
-static void wp_drm_lease_connector_v1_listener_handle_name(void *data,
-		     struct wp_drm_lease_connector_v1 *wp_drm_lease_connector_v1,
-		     const char *name)
+static void wp_drm_lease_connector_v1_listener_handle_name(void */*data*/,
+        struct wp_drm_lease_connector_v1 */*wp_drm_lease_connector_v1*/,
+        const char *name)
 {
     printf("wp_drm_lease_connector_v1_listener_handle_name: %s\n", name);
-
-    struct state *state = data;
 }
 
 static void wp_drm_lease_connector_v1_listener_handle_description(void *data,
-			    struct wp_drm_lease_connector_v1 *wp_drm_lease_connector_v1,
-			    const char *description)
+        struct wp_drm_lease_connector_v1 *wp_drm_lease_connector_v1,
+        const char *description)
 {
     printf("wp_drm_lease_connector_v1_listener_handle_description: %s\n", description);
-
     struct state *state = data;
 
     if (strcmp(description, TARGET_CONNECTOR_DESC) == 0) {
@@ -85,25 +82,21 @@ static void wp_drm_lease_connector_v1_listener_handle_description(void *data,
     }
 }
 
-static void wp_drm_lease_connector_v1_listener_handle_connector_id(void *data,
-			     struct wp_drm_lease_connector_v1 *wp_drm_lease_connector_v1,
-			     uint32_t connector_id)
+static void wp_drm_lease_connector_v1_listener_handle_connector_id(void */*data*/,
+        struct wp_drm_lease_connector_v1 */*wp_drm_lease_connector_v1*/,
+        uint32_t connector_id)
 {
     printf("wp_drm_lease_connector_v1_listener_handle_connector_id: %d\n", connector_id);
-
-    struct state *state = data;
 }
 
-static void wp_drm_lease_connector_v1_listener_handle_done(void *data,
-		     struct wp_drm_lease_connector_v1 *wp_drm_lease_connector_v1)
+static void wp_drm_lease_connector_v1_listener_handle_done(void */*data*/,
+        struct wp_drm_lease_connector_v1 */*wp_drm_lease_connector_v1*/)
 {
     printf("wp_drm_lease_connector_v1_listener_handle_done\n");
-
-    struct state *state = data;
 }
 
-static void wp_drm_lease_connector_v1_listener_handle_withdrawn(void *data,
-			  struct wp_drm_lease_connector_v1 *wp_drm_lease_connector_v1)
+static void wp_drm_lease_connector_v1_listener_handle_withdrawn(void */*data*/,
+        struct wp_drm_lease_connector_v1 *wp_drm_lease_connector_v1)
 {
     printf("wp_drm_lease_connector_v1_listener_handle_withdrawn: Sending destroy\n");
 
@@ -123,7 +116,7 @@ static const struct wp_drm_lease_connector_v1_listener wp_drm_lease_connector_v1
 // ----------------------------- drm_lease: device -----------------------------
 
 static void wp_drm_lease_device_v1_listener_handle_drm_fd(void *data,
-        struct wp_drm_lease_device_v1 *wp_drm_lease_device_v1, int32_t fd)
+        struct wp_drm_lease_device_v1 */*wp_drm_lease_device_v1*/, int32_t fd)
 {
     printf("wp_drm_lease_device_v1_listener_handle_drm_fd: %d\n", fd);
 
@@ -135,7 +128,7 @@ static void wp_drm_lease_device_v1_listener_handle_drm_fd(void *data,
 }
 
 static void wp_drm_lease_device_v1_listener_handle_connector(void *data,
-        struct wp_drm_lease_device_v1 *wp_drm_lease_device_v1,
+        struct wp_drm_lease_device_v1 */*wp_drm_lease_device_v1*/,
         struct wp_drm_lease_connector_v1 *wp_drm_lease_connector_v1)
 {
     printf("wp_drm_lease_device_v1_listener_handle_connector\n");
@@ -146,7 +139,7 @@ static void wp_drm_lease_device_v1_listener_handle_connector(void *data,
 }
 
 static void wp_drm_lease_device_v1_listener_handle_done(void *data,
-        struct wp_drm_lease_device_v1 *wp_drm_lease_device_v1)
+        struct wp_drm_lease_device_v1 */*wp_drm_lease_device_v1*/)
 {
     printf("wp_drm_lease_device_v1_listener_handle_done\n");
     struct state *state = data;
@@ -168,11 +161,10 @@ static void wp_drm_lease_device_v1_listener_handle_done(void *data,
     }
 }
 
-static void wp_drm_lease_device_v1_listener_handle_released(void *data,
-        struct wp_drm_lease_device_v1 *wp_drm_lease_device_v1)
+static void wp_drm_lease_device_v1_listener_handle_released(void */*data*/,
+        struct wp_drm_lease_device_v1 */*wp_drm_lease_device_v1*/)
 {
     printf("wp_drm_lease_device_v1_listener_handle_released\n");
-    struct state *state = data;
 }
 
 static const struct wp_drm_lease_device_v1_listener wp_drm_lease_device_v1_listener = {
@@ -210,8 +202,8 @@ static void registry_handle_global(void *data, struct wl_registry *wl_registry,
     }
 }
 
-static void registry_handle_global_remove(void *data,
-        struct wl_registry *wl_registry, uint32_t name)
+static void registry_handle_global_remove(void */*data*/,
+        struct wl_registry */*wl_registry*/, uint32_t /*name*/)
 {
     // ---
 }
@@ -223,7 +215,7 @@ static const struct wl_registry_listener registry_listener = {
 
 // -----------------------------------------------------------------------------
 
-int main(int argc, char *argv[])
+int main(void)
 {
     struct state state = { 0 };
 
