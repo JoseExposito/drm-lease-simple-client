@@ -5,7 +5,7 @@
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/builddir/drm-lease-simple-client",
-      "args": [],
+      "args": ["DEL DELL U2422H"],
       "stopAtEntry": false,
       "cwd": "${fileDirname}",
       "environment": [

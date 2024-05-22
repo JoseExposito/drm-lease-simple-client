@@ -12,8 +12,6 @@
 #include <xf86drm.h>
 #include "drm-lease-v1-client-protocol.h"
 
-#define TARGET_CONNECTOR_DESC "DEL DELL U2422H"
-
 struct state {
     struct wl_compositor *compositor;
 
@@ -21,7 +19,8 @@ struct state {
     struct wp_drm_lease_device_v1 *drm_lease_device;
     int32_t drm_lease_device_fd;
 
-    // For simplicity, handle only the connector with description TARGET_CONNECTOR_DESC
+    // For simplicity, handle only the connector with description target_connector_desc
+    const char *target_connector_desc;
     struct wp_drm_lease_connector_v1 *drm_lease_connector;
 };
 
@@ -76,7 +75,7 @@ static void wp_drm_lease_connector_v1_listener_handle_description(void *data,
     printf("wp_drm_lease_connector_v1_listener_handle_description: %s\n", description);
     struct state *state = data;
 
-    if (strcmp(description, TARGET_CONNECTOR_DESC) == 0) {
+    if (strcmp(description, state->target_connector_desc) == 0) {
         printf("\tTarget connector found!\n");
         state->drm_lease_connector = wp_drm_lease_connector_v1;
     }
@@ -215,9 +214,19 @@ static const struct wl_registry_listener registry_listener = {
 
 // -----------------------------------------------------------------------------
 
-int main(void)
+int main(int argc, char **argv)
 {
     struct state state = { 0 };
+
+    if (argc != 2) {
+        printf("Usage:\n");
+        printf("\tdrm-lease-simple-client [CONNECTOR DESCRIPTION]\n\n");
+        printf("Example:\n");
+        printf("\tdrm-lease-simple-client \"DEL DELL U2422H\"\n");
+        return 1;
+    }
+
+    state.target_connector_desc = argv[1];
 
     struct wl_display *display = wl_display_connect(NULL);
     if (!display) {
