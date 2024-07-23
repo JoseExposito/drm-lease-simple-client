@@ -15,6 +15,8 @@
 struct state {
     struct wl_compositor *compositor;
 
+    bool arg_list_connectors;
+
     // For simplicity, handle only one device
     struct wp_drm_lease_device_v1 *drm_lease_device;
     int32_t drm_lease_device_fd;
@@ -143,6 +145,10 @@ static void wp_drm_lease_device_v1_listener_handle_done(void *data,
     printf("wp_drm_lease_device_v1_listener_handle_done\n");
     struct state *state = data;
 
+    if (state->arg_list_connectors) {
+        exit(0);
+    }
+
     if (ask_question("Would you like to send a lease request?")) {
         struct wp_drm_lease_request_v1 *request;
         struct wp_drm_lease_v1 *lease;
@@ -220,12 +226,16 @@ int main(int argc, char **argv)
 
     if (argc != 2) {
         printf("Usage:\n");
-        printf("\tdrm-lease-simple-client [CONNECTOR DESCRIPTION]\n\n");
-        printf("Example:\n");
+        printf("\tdrm-lease-simple-client --list-connectors\n");
+        printf("\t\tList the available connectors and exits\n");
+        printf("\tdrm-lease-simple-client [CONNECTOR DESCRIPTION]\n");
+        printf("\t\tAllow to connect to the target connector\n");
+        printf("\nExample:\n");
         printf("\tdrm-lease-simple-client \"DEL DELL U2422H\"\n");
         return 1;
     }
 
+    state.arg_list_connectors = strcmp(argv[1], "--list-connectors") == 0;
     state.target_connector_desc = argv[1];
 
     struct wl_display *display = wl_display_connect(NULL);
@@ -233,7 +243,7 @@ int main(int argc, char **argv)
         printf("Failed to connect to Wayland display.\n");
         return 1;
     }
-    printf("Connection established!\n");
+    printf("Connection to the Wayland compositor established!\n");
 
     printf("Checking global registry:\n");
     struct wl_registry *registry = wl_display_get_registry(display);
