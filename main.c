@@ -182,12 +182,9 @@ static const struct wp_drm_lease_device_v1_listener wp_drm_lease_device_v1_liste
 // -------------------------------- wl_registry --------------------------------
 
 static void registry_handle_global(void *data, struct wl_registry *wl_registry,
-        uint32_t name, const char *interface, uint32_t version)
+        uint32_t name, const char *interface, uint32_t /*version*/)
 {
     struct state *state = data;
-
-    printf("\tinterface = '%s', version = '%d', name = '%d'\n",
-            interface, version, name);
 
     if (strcmp(interface, wl_compositor_interface.name) == 0) {
         state->compositor = wl_registry_bind(wl_registry, name,
@@ -243,9 +240,7 @@ int main(int argc, char **argv)
         printf("Failed to connect to Wayland display.\n");
         return 1;
     }
-    printf("Connection to the Wayland compositor established!\n");
 
-    printf("Checking global registry:\n");
     struct wl_registry *registry = wl_display_get_registry(display);
     wl_registry_add_listener(registry, &registry_listener, &state);
     wl_display_roundtrip(display);
