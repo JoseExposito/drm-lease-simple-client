@@ -67,18 +67,18 @@ static void wp_drm_lease_connector_v1_listener_handle_name(void */*data*/,
         struct wp_drm_lease_connector_v1 */*wp_drm_lease_connector_v1*/,
         const char *name)
 {
-    printf("wp_drm_lease_connector_v1_listener_handle_name: %s\n", name);
+    printf("├─ wp_drm_lease_connector_v1_listener_handle_name: %s\n", name);
 }
 
 static void wp_drm_lease_connector_v1_listener_handle_description(void *data,
         struct wp_drm_lease_connector_v1 *wp_drm_lease_connector_v1,
         const char *description)
 {
-    printf("wp_drm_lease_connector_v1_listener_handle_description: %s\n", description);
+    printf("├─ wp_drm_lease_connector_v1_listener_handle_description: %s\n", description);
     struct state *state = data;
 
     if (strcmp(description, state->target_connector_desc) == 0) {
-        printf("\tTarget connector found!\n");
+        printf("│  Target connector found!\n");
         state->drm_lease_connector = wp_drm_lease_connector_v1;
     }
 }
@@ -87,13 +87,13 @@ static void wp_drm_lease_connector_v1_listener_handle_connector_id(void */*data*
         struct wp_drm_lease_connector_v1 */*wp_drm_lease_connector_v1*/,
         uint32_t connector_id)
 {
-    printf("wp_drm_lease_connector_v1_listener_handle_connector_id: %d\n", connector_id);
+    printf("├─ wp_drm_lease_connector_v1_listener_handle_connector_id: %d\n", connector_id);
 }
 
 static void wp_drm_lease_connector_v1_listener_handle_done(void */*data*/,
         struct wp_drm_lease_connector_v1 */*wp_drm_lease_connector_v1*/)
 {
-    printf("wp_drm_lease_connector_v1_listener_handle_done\n");
+    printf("└─ wp_drm_lease_connector_v1_listener_handle_done\n");
 }
 
 static void wp_drm_lease_connector_v1_listener_handle_withdrawn(void */*data*/,
@@ -119,13 +119,14 @@ static const struct wp_drm_lease_connector_v1_listener wp_drm_lease_connector_v1
 static void wp_drm_lease_device_v1_listener_handle_drm_fd(void *data,
         struct wp_drm_lease_device_v1 */*wp_drm_lease_device_v1*/, int32_t fd)
 {
-    printf("wp_drm_lease_device_v1_listener_handle_drm_fd: %d\n", fd);
+    printf("\twp_drm_lease_device_v1_listener_handle_drm_fd: %d\n", fd);
 
     struct state *state = data;
     state->drm_lease_device_fd = fd;
 
     printf("\tDevice path: %s\n", drmGetDeviceNameFromFd2(fd));
     printf("\tDevice is master? %s\n", drmIsMaster(fd) ? "Yes" : "No");
+    printf("Listing device connectors:\n");
 }
 
 static void wp_drm_lease_device_v1_listener_handle_connector(void *data,
@@ -195,6 +196,8 @@ static void registry_handle_global(void *data, struct wl_registry *wl_registry,
             printf("Multiple devices detected. To keep this client simple, only the first one is handled\n");
             return;
         }
+
+        printf("Lease device found, binding to the device\n");
 
         state->drm_lease_device = wl_registry_bind(wl_registry, name,
                 &wp_drm_lease_device_v1_interface, 1);
