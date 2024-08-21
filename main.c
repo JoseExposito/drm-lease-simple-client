@@ -24,6 +24,7 @@ struct state {
     // For simplicity, handle only the connector with description target_connector_desc
     const char *target_connector_desc;
     struct wp_drm_lease_connector_v1 *drm_lease_connector;
+    bool leased;
 };
 
 static bool ask_question(const char *question)
@@ -39,10 +40,14 @@ static bool ask_question(const char *question)
 
 // ----------------------------- drm_lease: lease ------------------------------
 
-static void wp_drm_lease_v1_listener_handle_lease_fd(void */*data*/,
+static void wp_drm_lease_v1_listener_handle_lease_fd(void *data,
         struct wp_drm_lease_v1 *wp_drm_lease_v1, int32_t leased_fd)
 {
+    struct state *state = data;
+
     printf("wp_drm_lease_v1_listener_handle_lease_fd: %d\n", leased_fd);
+
+    state->leased = true;
 
     if (ask_question("Would you like to finish the lease?")) {
         printf("Sending wp_drm_lease_v1_destroy\n");
@@ -50,10 +55,14 @@ static void wp_drm_lease_v1_listener_handle_lease_fd(void */*data*/,
     }
 }
 
-static void wp_drm_lease_v1_listener_handle_finished(void */*data*/,
+static void wp_drm_lease_v1_listener_handle_finished(void *data,
         struct wp_drm_lease_v1 */*wp_drm_lease_v1*/)
 {
+    struct state *state = data;
+
     printf("wp_drm_lease_v1_listener_handle_finished\n");
+
+    state->leased = false;
 }
 
 static const struct wp_drm_lease_v1_listener wp_drm_lease_v1_listener = {
@@ -96,10 +105,16 @@ static void wp_drm_lease_connector_v1_listener_handle_done(void */*data*/,
     printf("└─ wp_drm_lease_connector_v1_listener_handle_done\n");
 }
 
-static void wp_drm_lease_connector_v1_listener_handle_withdrawn(void */*data*/,
+static void wp_drm_lease_connector_v1_listener_handle_withdrawn(void *data,
         struct wp_drm_lease_connector_v1 *wp_drm_lease_connector_v1)
 {
+    struct state *state = data;
+
     printf("wp_drm_lease_connector_v1_listener_handle_withdrawn: Sending destroy\n");
+
+    if (state->drm_lease_connector == wp_drm_lease_connector_v1) {
+        state->drm_lease_connector = NULL;
+    }
 
     // Comment to send a request with the removed connector.
     // The compositor must reply with wp_drm_lease_v1.finished.
@@ -148,6 +163,10 @@ static void wp_drm_lease_device_v1_listener_handle_done(void *data,
 
     if (state->arg_list_connectors) {
         exit(0);
+    }
+
+    if (!state->drm_lease_connector || state->leased) {
+        return;
     }
 
     if (ask_question("Would you like to send a lease request?")) {
