@@ -52,6 +52,7 @@ static void wp_drm_lease_v1_listener_handle_lease_fd(void *data,
     if (ask_question("Would you like to finish the lease?")) {
         printf("Sending wp_drm_lease_v1_destroy\n");
         wp_drm_lease_v1_destroy(wp_drm_lease_v1);
+        state->leased = false;
     }
 }
 
